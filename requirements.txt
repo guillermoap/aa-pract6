@@ -1,0 +1,10 @@
+numpy
+colorama==0.4.1
+matplotlib
+sklearn
+jupyter
+ipython
+prompt-toolkit<2.0.0,>=1.0.15
+plotly
+Keras
+tensorflow
