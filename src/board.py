@@ -2,7 +2,8 @@ import numpy as np
 from colorama import Fore
 from src.marble import Marble
 from src.consts import *
-from src.neural_player import NeuralPlayer as Player
+from src.neural_player import NeuralPlayer
+from src.player import Player
 from src.neural import NNQFunction
 from src.util import initial_positions, oponent_color
 '''
@@ -10,11 +11,11 @@ from src.util import initial_positions, oponent_color
     Allowed movements are right, left and diagonal (up and down would allow extramovents)
 '''
 class Board:
-    def __init__(self, weights=None):
+    def __init__(self, weights=None, types=[NEURAL_TYPE, NEURAL_TYPE]):
         self.clear()
         self.weights = weights
-        self.init_player(RED)
-        self.init_player(GREEN)
+        self.init_player(RED, types[1])
+        self.init_player(GREEN, types[0])
 
     def __str__(self):
         s = ''
@@ -69,7 +70,7 @@ class Board:
         Initialize players' marbles.
         Currently red and green are the only supported colors.
     '''
-    def init_player(self, color):
+    def init_player(self, color, player_type):
         marbles = set()
         target = set()
         # target zone
@@ -81,14 +82,26 @@ class Board:
             marbles.add(Marble(self, position, color, target))
         if color == GREEN:
             if self.weights[0] is not None:
-                self.players[color] = Player(target, marbles, color, self, self.weights[0])
+                if player_type == NEURAL_TYPE:
+                    self.players[color] = NeuralPlayer(target, marbles, color, self, self.weights[0])  
+                else:
+                    self.players[color] = Player(target, marbles, color, self, self.weights[0]) 
             else:
-                self.players[color] = Player(target, marbles, color, self, NNQFunction(color))
+                if player_type == NEURAL_TYPE:
+                    self.players[color] = NeuralPlayer(target, marbles, color, self, NNQFunction(color))
+                else:
+                    self.players[color] = Player(target, marbles, color, self)
         elif color == RED:
             if self.weights[1] is not None:
-                    self.players[color] = Player(target, marbles, color, self, self.weights[1])
+                if player_type == NEURAL_TYPE:
+                    self.players[color] = NeuralPlayer(target, marbles, color, self, self.weights[1])
+                else:
+                    self.players[color] =  Player(target, marbles, color, self, self.weights[1])
             else:
-                self.players[color] = Player(target, marbles, color, self, NNQFunction(color))
+                if player_type == NEURAL_TYPE:
+                    self.players[color] = NeuralPlayer(target, marbles, color, self, NNQFunction(color))
+                else:
+                    self.players[color] = Player(target, marbles, color, self)
 
 
     def is_valid(self, position):

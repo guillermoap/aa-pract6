@@ -3,6 +3,7 @@ from src.neural import NNQFunction
 from src.util import as_vector
 from random import sample
 from copy import deepcopy
+import numpy as np
 
 class NeuralPlayer:
     initial_weights = [1, 5, -5, -5, 0.5]
@@ -15,7 +16,7 @@ class NeuralPlayer:
         self.moves = 0
         self.match_errors = []
         self.weights = weights
-        self.adjust_ratio = 50
+        self.adjust_rate = 2
         self.rate = self.weights.rate
     
     def __deepcopy__(self, memo):
@@ -46,9 +47,13 @@ class NeuralPlayer:
     def best_move(self, learn=True):
         if learn:
             print('Adjusting Weights')
-            self.adjust_weights()
-        vector = as_vector(self.board, self.color)
-        self.weights.add_state(vector, self.weights.value(vector))
+            if (self.moves + 1) % self.adjust_rate == 0:
+                self.adjust_weights()
+            vector = as_vector(self.board, self.color)
+            self.weights.add_state(vector, self.weights.value(vector))
+        
+        if self.weights.should_explore():
+            return self.random_move()
         
         best_value = float('-inf')
         next_move = None
@@ -70,7 +75,7 @@ class NeuralPlayer:
         return True, self.match_errors
 
     def adjust_weights(self):
-        self.weights.adjust(as_vector(self.board, self.color))
+        self.weights.adjust()
         self.weights.clear_states()
 
     def learning_function(self, state):

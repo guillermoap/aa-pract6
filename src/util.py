@@ -42,10 +42,13 @@ def as_vector(board, color):
     for marble in oponent.marbles:
         op_total_distance_to_zone += marble.distance_to_zone()
     
-    return (in_target, oponent_in_target, my_total_distance_to_zone ** 2, op_total_distance_to_zone ** 2)
+    return (in_target, oponent_in_target, my_total_distance_to_zone, op_total_distance_to_zone)
 
 zone_map = {
     GREEN: initial_positions(GREEN),
     RED: initial_positions(RED),
 }
+
+NEURAL_TYPE = 'NEURAL_TYPE'
+CLASSIC_TYPE = 'CLASSIC_TYPE'
 

@@ -23,37 +23,37 @@ class Marble:
 
     def should_move_red(self):
         if self.position == (0, 12):
-            return random.random() > 0.8
+            return False
 
         if self.position == (1, 11) or self.position == (1, 13):
             if self.board.is_ocuppied((0, 12)):
-                return random.random() > 0.8
+                return False
 
         if self.position == (2, 10) or self.position == (2, 12) or self.position == (2, 14):
             if self.board.is_ocuppied((0, 12)) and self.board.is_ocuppied((1, 11)) and self.board.is_ocuppied((1, 13)):
-                return random.random() > 0.8
+                return False
 
         if self.position == (3, 9) or self.position == (3, 11) or self.position == (3, 13) or self.position == (3, 15):
             if self.board.is_ocuppied((0, 12)) and self.board.is_ocuppied((1, 11)) and self.board.is_ocuppied((1, 13)) and self.board.is_ocuppied((2, 10)) and self.board.is_ocuppied((2, 12)) and self.board.is_ocuppied((2, 14)):
-                return random.random() > 0.8
+                return False
 
         return True
 
     def should_move_green(self):
         if self.position == (16, 12):
-            return random.random() > 0.8
+            return False
 
         if self.position == (15, 11) or self.position == (15, 13):
             if self.board.is_ocuppied((16, 12)):
-                return random.random() > 0.8
+                return False
 
         if self.position == (14, 10) or self.position == (14, 12) or self.position == (14, 14):
             if self.board.is_ocuppied((16, 12)) and self.board.is_ocuppied((15, 11)) and self.board.is_ocuppied((15, 13)):
-                return random.random() > 0.8
+                return False
 
         if self.position == (13, 9) or self.position == (13, 11) or self.position == (13, 13) or self.position == (13, 15):
             if self.board.is_ocuppied((16, 12)) and self.board.is_ocuppied((15, 11)) and self.board.is_ocuppied((15, 13)) and self.board.is_ocuppied((14, 10)) and self.board.is_ocuppied((14, 12)) and self.board.is_ocuppied((14, 14)):
-                return random.random() > 0.8
+                return False
 
         return True
 
@@ -109,17 +109,20 @@ class Marble:
         return possible_moves
 
     def possible_moves(self):
+        if not self.should_move():
+            return set()
         return self.move().union(self.jump())
 
     def distance_to_zone(self):
         i, j = self.position
 
-        distance_x = abs(12 - j)
+        # distance_x = abs(12 - j)
         if self.color == RED:
             distance_y = abs(0 - i)
         else:
             distance_y = abs(16 - i)
-        return sqrt((distance_x**2) + (distance_y**2))
+        return distance_y ** 2
+        # return sqrt((distance_x**2) + (distance_y**2))
 
     def make_move(self, final_position, calculate_move=False):
         '''
