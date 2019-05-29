@@ -1,2 +1,10 @@
 matplotlib==3.1.0
 seaborn==0.9.0
+pandas_ml
+numpy
+colorama==0.4.1
+sklearn
+jupyter
+ipython
+prompt-toolkit<2.0.0,>=1.0.15
+plotly

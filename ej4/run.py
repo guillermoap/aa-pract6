@@ -4,7 +4,7 @@ import pandas as pd
 import seaborn as sn
 from time import time
 from sklearn import metrics
-from sklearn.metrics import pairwise_distances, adjusted_rand_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.metrics import pairwise_distances, adjusted_rand_score, precision_score, recall_score, f1_score, accuracy_score, confusion_matrix
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.model_selection import train_test_split
 from src.classifier import Classifier
@@ -125,11 +125,19 @@ def load_data():
     data.drop('fecha', axis=1, inplace=True)
     data = data.sort_values(by=['party','name'])
     parties = []
+    cand = []
     parties_count  = dict(data.groupby('party').party.count())
+    candidatos_count  = dict(data.groupby('name').name.count())
     for row in parties_count.items():
         if row[1] > 1000:
             parties.append(row[0])
+    for row in candidatos_count.items():
+        if row[1] > 1000:
+            cand.append(row[0])
     data = data.query(f'party in {parties}')
+    data = data.query(f'name in {cand}')
+    print(data.groupby('party').party.count())
+    print(data.groupby('name').name.count())
     data.drop(['name', 'party'], axis=1, inplace=True)
     # Para PCA solo usamos las preguntas
     candidatos = data.iloc[:,1:28]
@@ -139,18 +147,11 @@ def load_data():
 def output_results(title, actual, predicted):
     print(f'----------------------------------------')
     print(f'######### {title} #########')
-    print('score: micro, macro')
-    print(f"precision: {precision_score(actual, predicted, average='micro')}, {precision_score(actual, predicted, average='macro')}")
-    print(f"recall: {recall_score(actual, predicted, average='micro')}, {recall_score(actual, predicted, average='macro')}")
-    print(f"f1: {f1_score(actual, predicted, average='micro')}, {f1_score(actual, predicted, average='macro')}")
+    print(f"accuracy: {accuracy_score(actual, predicted)}")
+    print(f"precision: {precision_score(actual, predicted, average='micro')}")
+    print(f"recall: {recall_score(actual, predicted, average='micro')}")
+    print(f"f1: {f1_score(actual, predicted, average='micro')}")
     print(f'----------------------------------------')
-
-def plot_confusion_matrix(cm, title='Confusion matrix', candidato=True):
-    plt.title(title)
-    if candidato:
-        df_cm = pd.DataFrame(cm, index = [i for i in candidatos], columns = [i for i in candidatos])
-    plt.figure()
-    sn.heatmap(df_cm, annot=True)
 
 def candidato_mapper(data, target):
     data = list(map(lambda x: candidatos[f'{x}'], data))
@@ -192,7 +193,28 @@ def run():
     elapsed_time = time() - start_time
     print(f'----------------------------------------')
     print(f'TOTAL TIME: {datetime.timedelta(seconds=elapsed_time)}')
-    return (cm_cand, cm_pca_cand, cm_part, cm_pca_part, cm_cand_part)
+
+    result = {
+        'data': {
+            'candidatos': (train_c, test_c),
+            'partidos': (train_p, test_p),
+        },
+        'results': {
+            'candidatos': (test_c.candidatoId, cand_pred),
+            'candidatos_pca': (test_c.candidatoId, pca_cand_pred),
+            'partidos': (test_p.idPartido, part_pred),
+            'partidos_pca': (test_p.idPartido, pca_part_pred),
+            'partidos_candidatos': (cand_part_target, cand_part_pred)
+        },
+        'matrices': {
+            'candidatos': cm_cand,
+            'candidatos_pca': cm_pca_cand,
+            'partidos': cm_part,
+            'partidos_pca': cm_pca_part,
+            'partidos_candidatos': cm_cand_part
+        }
+    }
+    return result
 
 if __name__ == "__main__":
     run()
