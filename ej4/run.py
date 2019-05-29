@@ -181,16 +181,18 @@ def run():
     output_results(f'PARTIDOS | {part_solver}', test_p.idPartido, part_pred)
     output_results(f'PARTIDOS_PCA | {pca_part_solver}, {n_part}', test_p.idPartido, pca_part_pred)
     cand_part_target, cand_part_pred = candidato_mapper(test_c.candidatoId, cand_pred)
-    output_results(f'PARTIDO | {cand_solver}', cand_part_target, cand_part_pred)
+    output_results(f'PARTIDOS CON CANDIDATO | {cand_solver}', cand_part_target, cand_part_pred)
 
-    # cm_cand = confusion_matrix(test_c.candidatoId, cand_pred)
-    # cm_pca_cand = confusion_matrix(test_c.candidatoId, pca_cand_pred)
-    # cm_part = confusion_matrix(test_p.idPartido, part_pred)
-    # cm_pca_part = confusion_matrix(test_p.idPartido, pca_part_pred)
-    # plot_confusion_matrix(cm_cand, 'CANDIDATOS')
+    cm_cand = ConfusionMatrix(test_c.candidatoId, cand_pred)
+    cm_pca_cand = ConfusionMatrix(test_c.candidatoId, pca_cand_pred)
+    cm_part = ConfusionMatrix(test_p.idPartido, part_pred)
+    cm_pca_part = ConfusionMatrix(test_p.idPartido, pca_part_pred)
+    cm_cand_part = ConfusionMatrix(cand_part_target, cand_part_pred)
+
     elapsed_time = time() - start_time
     print(f'----------------------------------------')
     print(f'TOTAL TIME: {datetime.timedelta(seconds=elapsed_time)}')
+    return (cm_cand, cm_pca_cand, cm_part, cm_pca_part, cm_cand_part)
 
 if __name__ == "__main__":
     run()
